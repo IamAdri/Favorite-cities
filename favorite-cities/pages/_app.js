@@ -1,9 +1,9 @@
-import { Provider } from "@/components/ui/provider";
+import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 
 export default function App({ Component, pageProps }) {
   return (
-    <Provider>
+    <ChakraProvider value={defaultSystem}>
       <Component {...pageProps} />
-    </Provider>
+    </ChakraProvider>
   );
 }

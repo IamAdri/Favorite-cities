@@ -1,13 +1,6 @@
 import { Container, Heading, Text } from "@chakra-ui/react";
 import Head from "next/head";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-  MenuContent,
-  MenuItem,
-  MenuRoot,
-  MenuTrigger,
-} from "@/components/ui/menu";
+import MenuBar from "@/components/menuBar";
 
 export default function Home() {
   return (
@@ -18,32 +11,10 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <MenuRoot>
-        <MenuTrigger asChild>
-          <Button
-            size="sm"
-            variant="solid"
-            colorPalette="purple"
-            _hover={{ color: "colorPallete.800" }}
-          >
-            Menu bar
-          </Button>
-        </MenuTrigger>
-        <MenuContent>
-          <MenuItem asChild value="search-page" _hover={{ bg: "purple.800" }}>
-            <Link href="/search">Search page</Link>
-          </MenuItem>
-          <MenuItem asChild value="city-page" _hover={{ bg: "purple.800" }}>
-            <Link href="/city-page">City page</Link>
-          </MenuItem>
-          <MenuItem asChild value="favorites" _hover={{ bg: "purple.800" }}>
-            <Link href="/favorites">Favorites</Link>
-          </MenuItem>
-        </MenuContent>
-      </MenuRoot>
+      <MenuBar />
       <Container p="20px">
         <Heading size="3xl">Homepage</Heading>
-        <Text mt="3.5" bg="purple.500">
+        <Text mt="3.5" bg="purple.500" color="white">
           This is the homepage
         </Text>
       </Container>
