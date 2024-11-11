@@ -12,7 +12,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <MenuBar />
-      <Container p="20px">
+      <Container p="20px" centerContent="true">
         <Heading size="3xl">Homepage</Heading>
         <Text mt="3.5" bg="purple.500" color="white">
           This is the homepage

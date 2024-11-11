@@ -26,6 +26,7 @@ export default function MenuBar() {
           size="sm"
           variant="solid"
           colorPalette="purple"
+          m="5"
           _hover={{ color: "colorPallete.800" }}
         >
           Menu bar
