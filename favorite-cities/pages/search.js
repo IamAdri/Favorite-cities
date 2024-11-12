@@ -26,7 +26,7 @@ export default function Search({ data }) {
       .then((response) => response.json())
       .then((data) => {
         //console.log(data.results)
-      if(!data.reults) return alert("Incorect city name. Please check spelling and try again.")
+      if(!data.results) return alert("Incorect city name. Please check spelling and try again.")
         setListItems((currentList) => {
           return [
             ...currentList,
