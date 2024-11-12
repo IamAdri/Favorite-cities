@@ -3,21 +3,6 @@ import MenuBar from "@/components/menuBar";
 import { useEffect, useState } from "react";
 import { Link } from "@chakra-ui/react";
 
-export async function location() {
-  let data = await fetch(
-    "https://geocoding-api.open-meteo.com/v1/search?name=Berlin&count=1&language=en&format=json"
-  );
-  let locations = await data.json();
-  return (
-    <ul>
-      {console.log("Hey")}
-      {locations.results.map((location) => (
-        <li key={location.name}>{location.latitude}</li>
-      ))}
-    </ul>
-  );
-}
-
 export default function Search({ data }) {
   const [inputValue, setInputValue] = useState("");
   const [listItems, setListItems] = useState([]);
@@ -41,6 +26,7 @@ export default function Search({ data }) {
       .then((response) => response.json())
       .then((data) => {
         //console.log(data.results)
+      if(!data.reults) return alert("Incorect city name. Please check spelling and try again.")
         setListItems((currentList) => {
           return [
             ...currentList,
@@ -54,7 +40,8 @@ export default function Search({ data }) {
           ];
         });
         //console.log(data.results[0])
-      });
+      })
+      .catch(error => alert((error)))
 
     setInputValue("");
   };

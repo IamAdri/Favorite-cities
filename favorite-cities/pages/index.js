@@ -15,7 +15,7 @@ export default function Home() {
       <Container p="20px" centerContent="true">
         <Heading size="3xl">Homepage</Heading>
         <Text mt="3.5" bg="purple.500" color="white">
-          This is the homepage
+          Welcome to favorite cities website!
         </Text>
       </Container>
     </>

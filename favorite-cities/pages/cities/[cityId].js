@@ -48,10 +48,7 @@ export default function City() {
     <>
       <MenuBar />
       <Container p="20px" centerContent="true">
-        <Heading size="3xl">City Page</Heading>
-        <Text mt="3.5" bg="purple.500" color="white">
-          This is the city page {cityId}
-        </Text>
+        <Heading size="3xl">{cityId}</Heading>
         {listItems.length > 0 &&
           listItems.map((item) => {
             return (
@@ -69,10 +66,13 @@ export default function City() {
             return (
               <Box as="ul" css={listStyle} key={extraItem.latitude}>
                 <li>
-                  Max temperature: {extraItem.daily.temperature_2m_max} Celsius
+                  Max temperature: {extraItem.daily.temperature_2m_max} {extraItem.daily_units.temperature_2m_max}
                 </li>
                 <li>
-                  Min temperature: {extraItem.daily.temperature_2m_min} Celsius
+                  Min temperature: {extraItem.daily.temperature_2m_min} {extraItem.daily_units.temperature_2m_max}
+                </li>
+                <li>
+                  Date: {extraItem.daily.time}
                 </li>
               </Box>
             );
