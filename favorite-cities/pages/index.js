@@ -1,8 +1,20 @@
-import { Container, Heading, Text } from "@chakra-ui/react";
+import { useSession, signIn, signOut } from "next-auth/react"
+import { Button, Container, Heading, Text } from "@chakra-ui/react";
 import Head from "next/head";
 import MenuBar from "@/components/menuBar";
 
+
 export default function Home() {
+  const { data: session } = useSession();
+  if (!session) {
+    return (
+      <>
+        Not signed in <br />
+        <button onClick={() => signIn()}>Sign in</button>
+      </>
+    )
+  }
+  
   return (
     <>
       <Head>
@@ -15,9 +27,13 @@ export default function Home() {
       <Container p="20px" centerContent="true">
         <Heading size="3xl">Homepage</Heading>
         <Text mt="3.5" bg="purple.500" color="white">
-          Welcome to favorite cities website!
+          Welcome to favorite cities website!<br />
         </Text>
+        <Text>Signed in as {session.user.email} <br /></Text>
+        <Button onClick={() => signOut()}>Sign out</Button>
       </Container>
     </>
   );
 }
+
+
