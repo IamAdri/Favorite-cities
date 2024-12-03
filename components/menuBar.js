@@ -38,10 +38,7 @@ export default function MenuBar() {
         </MenuItem>
         <MenuItem asChild value="search-page" css={menuItemStyles}>
           <Link href="/search">Search page</Link>
-        </MenuItem>
-        <MenuItem asChild value="city-page" css={menuItemStyles}>
-          <Link href="/city-page">City page</Link>
-        </MenuItem>
+        </MenuItem>  
         <MenuItem asChild value="favorites" css={menuItemStyles}>
           <Link href="/favorites">Favorites</Link>
         </MenuItem>
