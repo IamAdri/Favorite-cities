@@ -93,49 +93,63 @@ export default function Home({ cities }) {
     }
   }, [randomCities]);
 
+  useEffect(()=>{
+if(!navigator.geolocation) {
+  console.log("ffffffffff")
+}
+console.log("hhhhhhhhhhhhhhh")
+  }, [])
+/*
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      //console.log(position.coords.latitude, position.coords.longitude);
-      fetch(
-        `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${position.coords.longitude}&latitude=${position.coords.latitude}&access_token=pk.eyJ1IjoiYWRyaWFuYS1zcHJpbmNlYW4iLCJhIjoiY200OXc0dGpmMDFiOTJpc2U4OGE5OTVsdSJ9.MDVI_4ila-QC7Hsbj2BacA`
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-          setUserLocation([
-            data.features[0].properties.context.place.name,
-            data.features[0].properties.context.country.name,
-          ]);
-          //console.log(data.features[0].properties.context.place.name)
-          fetch(
-            `https://geocoding-api.open-meteo.com/v1/search?name=${data.features[0].properties.context.place.name}&count=1&language=en&format=json`
-          )
-            .then((res) => res.json())
-            .then((data) => {
-              console.log(data);
-              setCityName(data.results[0].name);
-            });
-        });
-
-      fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          setWeatherIems([data]);
-          console.log(data);
-        });
-    });
+    
+      navigator.geolocation.getCurrentPosition((position) => {
+        //console.log(position.coords.latitude, position.coords.longitude);
+        
+        fetch(
+          `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${position.coords.longitude}&latitude=${position.coords.latitude}&access_token=pk.eyJ1IjoiYWRyaWFuYS1zcHJpbmNlYW4iLCJhIjoiY200OXc0dGpmMDFiOTJpc2U4OGE5OTVsdSJ9.MDVI_4ila-QC7Hsbj2BacA`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            setUserLocation([
+              data.features[0].properties.context.place.name,
+              data.features[0].properties.context.country.name,
+            ]);
+            //console.log(data.features[0].properties.context.place.name)
+            fetch(
+              `https://geocoding-api.open-meteo.com/v1/search?name=${data.features[0].properties.context.place.name}&count=1&language=en&format=json`
+            )
+              .then((res) => res.json())
+              .then((data) => {
+                console.log(data);
+                setCityName(data.results[0].name);
+              });
+              fetch(
+                `https://api.open-meteo.com/v1/forecast?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`
+              )
+                .then((res) => res.json())
+                .then((data) => {
+                  setWeatherIems([data]);
+                  console.log(data);
+                });
+          }).catch(()=>{
+            console.log('noooooooo')
+            fetch("https://ipinfo.io/json?token=333cb3549b21d1").then(
+              (response) => response.json()
+            ).then(
+             (data)=>console.log(data)
+            ).catch(error=>console.log(error))
+           })
+  
+        
+      })
+   
+      
+    
+ 
   }, []);
 
-  useEffect(()=>{
-    fetch("https://ipinfo.io/json?token=333cb3549b21d1").then(
-      (response) => response.json()
-    ).then(
-     (data)=>console.log(data)
-    ).catch(error=>console.log(error))
-  })
-
+  */
   useEffect(() => {
     fetchedCities.map((dbData) => {
       console.log(dbData);
