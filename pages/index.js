@@ -155,9 +155,9 @@ export default function Home({ cities }) {
               {favoriteCities.length > 0 &&
                 favoriteCities[0].map((city) => {
                   return (
-                    <Center>
+                    <Center key={city.cityName}>
                       <Box as="ul">
-                        <li key={city.cityName}>
+                        <li>
                           City: {city.cityName} | Country: {city.country}
                         </li>
                         <br></br>
@@ -173,8 +173,8 @@ export default function Home({ cities }) {
               {fetchedRandomCity.length > 0 &&
                 fetchedRandomCity.map((city) => {
                   return (
-                    <Center>
-                      <Box as="ul" key={city.name}>
+                    <Center key={city.name}>
+                      <Box as="ul">
                         <li>
                           City: {city.name} | Country: {city.country} |
                           Population: {city.population}
