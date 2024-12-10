@@ -19,11 +19,11 @@ export default function Home({ cities }) {
   const [randomCities, setRandomCities] = useState([]);
   const [fetchedRandomCity, setFetchedRandomCity] = useState([]);
   const [noFavoriteCitiesText, setNoFavoriteCitiesText] = useState("");
-  const [userLocation, setUserLocation] = useState([]);
   const [weatherItems, setWeatherIems] = useState([]);
   const [fetchedCities, setFetchedCities] = useState([]);
   const [buttonText, setButtonText] = useState("Add to favorites💜");
   const [cityName, setCityName] = useState("");
+  const [countryName, setCountryName] = useState("");
   const { data: session } = useSession();
 
   const listStyle = {
@@ -41,7 +41,7 @@ export default function Home({ cities }) {
     backgroundRepeat: "no-repeat",
     width: "100vw",
     height: "100vh",
-    
+
     alignItems: "center",
     justifyContent: "center",
   };
@@ -93,73 +93,63 @@ export default function Home({ cities }) {
     }
   }, [randomCities]);
 
-  useEffect(()=>{
-if(!navigator.geolocation) {
-  console.log("ffffffffff")
-}
-console.log("hhhhhhhhhhhhhhh")
-  }, [])
-/*
-  useEffect(() => {
-    
-      navigator.geolocation.getCurrentPosition((position) => {
-        //console.log(position.coords.latitude, position.coords.longitude);
-        
+  function successCallback(position) {
+    fetch(
+      `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${position.coords.longitude}&latitude=${position.coords.latitude}&access_token=pk.eyJ1IjoiYWRyaWFuYS1zcHJpbmNlYW4iLCJhIjoiY200OXc0dGpmMDFiOTJpc2U4OGE5OTVsdSJ9.MDVI_4ila-QC7Hsbj2BacA`
+    )
+      .then((res) => res.json())
+      .then((data) => {
         fetch(
-          `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${position.coords.longitude}&latitude=${position.coords.latitude}&access_token=pk.eyJ1IjoiYWRyaWFuYS1zcHJpbmNlYW4iLCJhIjoiY200OXc0dGpmMDFiOTJpc2U4OGE5OTVsdSJ9.MDVI_4ila-QC7Hsbj2BacA`
+          `https://geocoding-api.open-meteo.com/v1/search?name=${data.features[0].properties.context.place.name}&count=1&language=en&format=json`
         )
           .then((res) => res.json())
           .then((data) => {
-            console.log(data);
-            setUserLocation([
-              data.features[0].properties.context.place.name,
-              data.features[0].properties.context.country.name,
-            ]);
-            //console.log(data.features[0].properties.context.place.name)
+            setCityName(data.results[0].name);
+            setCountryName(data.results[0].country);
+          });
+        fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            setWeatherIems([data]);
+          });
+      });
+  }
+
+  function errorCallback(error) {
+    fetch("https://ipinfo.io/json?token=333cb3549b21d1")
+      .then((response) => response.json())
+      .then((data) => {
+        fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?name=${data.city}&count=1&language=en&format=json`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            setCityName(data.results[0].name);
+            setCountryName(data.results[0].country);
             fetch(
-              `https://geocoding-api.open-meteo.com/v1/search?name=${data.features[0].properties.context.place.name}&count=1&language=en&format=json`
+              `https://api.open-meteo.com/v1/forecast?latitude=${data.results[0].latitude}&longitude=${data.results[0].longitude}&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`
             )
               .then((res) => res.json())
               .then((data) => {
-                console.log(data);
-                setCityName(data.results[0].name);
+                setWeatherIems([data]);
               });
-              fetch(
-                `https://api.open-meteo.com/v1/forecast?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`
-              )
-                .then((res) => res.json())
-                .then((data) => {
-                  setWeatherIems([data]);
-                  console.log(data);
-                });
-          }).catch(()=>{
-            console.log('noooooooo')
-            fetch("https://ipinfo.io/json?token=333cb3549b21d1").then(
-              (response) => response.json()
-            ).then(
-             (data)=>console.log(data)
-            ).catch(error=>console.log(error))
-           })
-  
-        
-      })
-   
-      
-    
- 
+          });
+      });
+  }
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
   }, []);
 
-  */
   useEffect(() => {
     fetchedCities.map((dbData) => {
-      console.log(dbData);
       dbData.map((dbCities) => {
-        console.log(cityName);
         if (
           cityName === dbCities.cityName &&
-          userLocation[1] === dbCities.country
+          countryName === dbCities.country
         ) {
-          console.log(cityName, userLocation[1]);
           setButtonText("Remove from favorites");
         }
       });
@@ -170,17 +160,15 @@ console.log("hhhhhhhhhhhhhhh")
     fetch("../api/favorites")
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setFetchedCities([data]);
       });
   }, []);
 
   const handleClick = (e) => {
     e.preventDefault();
-
     fetch("../api/favorites", {
       method: "POST",
-      body: JSON.stringify({ cityName: cityName, country: userLocation[1] }),
+      body: JSON.stringify({ cityName: cityName, country: countryName }),
       headers: {
         "Content-Type": "application/json",
       },
@@ -190,6 +178,7 @@ console.log("hhhhhhhhhhhhhhh")
       ? setButtonText("Remove from favorites")
       : setButtonText("Add to favorites💜");
   };
+
   if (!session) {
     return (
       <Center>
@@ -213,118 +202,117 @@ console.log("hhhhhhhhhhhhhhh")
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      
-        <Flex
-          bgColor="purple.50"
-          justify="space-between"
-          align="center"
-          height="70px"
-        >
-          <MenuBar />
-          <Box m="10" justifyItems="center" h="36px">
-            <Text>Signed in as {session.user.email}</Text>
-            <Button onClick={() => signOut()} h="25px">
-              Sign out
-            </Button>
-          </Box>
-        </Flex>
-        <Box css={backgroundImgStyle}>
-          <Container centerContent="true">
-            <Box p="5px" rounded="md" mb="55px" bgColor="purple.900/80">
-              <Text color="white" textStyle="3xl" fontWeight="bold">
-                Welcome to favorite cities website!
-                <br />
-              </Text>
-            </Box>
-            <Text mt="3.5" css={listStyle} textStyle="lg" fontWeight="medium">
-              In order to explore the cities of the world{" "}
-              <Link
-                _hover={{ color: "white" }}
-                variant="underline"
-                color="purple.700"
-                href="/search"
-              >
-                search here
-              </Link>
-              !
-            </Text>
-            <Flex wrap="wrap" gap="100px">
-              <Box css={listStyle}>
-                <Center>
-                  <Heading size="xl">Favorite cities 💜</Heading>
-                </Center>
-                <Center>
-                  <Text>{noFavoriteCitiesText}</Text>
-                </Center>
-                {favoriteCities.length > 0 &&
-                  favoriteCities[0].map((city) => {
-                    return (
-                      <Center key={city.cityName}>
-                        <Box as="ul">
-                          <li >
-                            City: {city.cityName} | Country: {city.country}
-                          </li>
-                          <br></br>
-                        </Box>
-                      </Center>
-                    );
-                  })}
-              </Box>
-              <Box css={listStyle}>
-                <Center>
-                  <Heading size="xl">Random cities </Heading>
-                </Center>
-                {fetchedRandomCity.length > 0 &&
-                  fetchedRandomCity.map((city) => {
-                    return (
-                      <Center key={city.name}>
-                        <Box as="ul" >
-                          <li>
-                            City: {city.name} | Country: {city.country} |
-                            Population: {city.population}
-                          </li>
-                          <br></br>
-                        </Box>
-                      </Center>
-                    );
-                  })}
-              </Box>
-            </Flex>
-            {userLocation.length > 0 &&
-              weatherItems.length > 0 &&
-              weatherItems.map((city) => {
-                return (
-                  <Box css={listStyle}>
-                    <Center>
-                      You are in {userLocation[0]} from {userLocation[1]}
-                    </Center>
-                    <br></br>
-                    <Center>
-                      <Text>
-                        Max temperature: {city.daily.temperature_2m_max}{" "}
-                        {city.daily_units.temperature_2m_max}
-                      </Text>
-                    </Center>
-                    <Center>
-                      <Text>
-                        Min temperature: {city.daily.temperature_2m_min}{" "}
-                        {city.daily_units.temperature_2m_max}
-                      </Text>
-                    </Center>
-                    <Center>
-                      <Text>Date: {city.daily.time}</Text>
-                    </Center><br></br>
-                    <Center>
-                      <Button onClick={(e) => handleClick(e)}>
-                        {buttonText}
-                      </Button>
-                    </Center>
-                  </Box>
-                );
-              })}
-          </Container>
+
+      <Flex
+        bgColor="purple.50"
+        justify="space-between"
+        align="center"
+        height="70px"
+      >
+        <MenuBar />
+        <Box m="10" justifyItems="center" h="36px">
+          <Text>Signed in as {session.user.email}</Text>
+          <Button onClick={() => signOut()} h="25px">
+            Sign out
+          </Button>
         </Box>
-    
+      </Flex>
+      <Box css={backgroundImgStyle}>
+        <Container centerContent="true">
+          <Box p="5px" rounded="md" mb="55px" bgColor="purple.900/80">
+            <Text color="white" textStyle="3xl" fontWeight="bold">
+              Welcome to favorite cities website!
+              <br />
+            </Text>
+          </Box>
+          <Text mt="3.5" css={listStyle} textStyle="lg" fontWeight="medium">
+            In order to explore the cities of the world{" "}
+            <Link
+              _hover={{ color: "white" }}
+              variant="underline"
+              color="purple.700"
+              href="/search"
+            >
+              search here
+            </Link>
+            !
+          </Text>
+          <Flex wrap="wrap" gap="100px">
+            <Box css={listStyle}>
+              <Center>
+                <Heading size="xl">Favorite cities 💜</Heading>
+              </Center>
+              <Center>
+                <Text>{noFavoriteCitiesText}</Text>
+              </Center>
+              {favoriteCities.length > 0 &&
+                favoriteCities[0].map((city) => {
+                  return (
+                    <Center key={city.cityName}>
+                      <Box as="ul">
+                        <li>
+                          City: {city.cityName} | Country: {city.country}
+                        </li>
+                        <br></br>
+                      </Box>
+                    </Center>
+                  );
+                })}
+            </Box>
+            <Box css={listStyle}>
+              <Center>
+                <Heading size="xl">Random cities </Heading>
+              </Center>
+              {fetchedRandomCity.length > 0 &&
+                fetchedRandomCity.map((city) => {
+                  return (
+                    <Center key={city.name}>
+                      <Box as="ul">
+                        <li>
+                          City: {city.name} | Country: {city.country} |
+                          Population: {city.population}
+                        </li>
+                        <br></br>
+                      </Box>
+                    </Center>
+                  );
+                })}
+            </Box>
+          </Flex>
+          {weatherItems.length > 0 &&
+            weatherItems.map((city) => {
+              return (
+                <Box css={listStyle}>
+                  <Center>
+                    You are in {cityName} from {countryName}
+                  </Center>
+                  <br></br>
+                  <Center>
+                    <Text>
+                      Max temperature: {city.daily.temperature_2m_max}{" "}
+                      {city.daily_units.temperature_2m_max}
+                    </Text>
+                  </Center>
+                  <Center>
+                    <Text>
+                      Min temperature: {city.daily.temperature_2m_min}{" "}
+                      {city.daily_units.temperature_2m_max}
+                    </Text>
+                  </Center>
+                  <Center>
+                    <Text>Date: {city.daily.time}</Text>
+                  </Center>
+                  <br></br>
+                  <Center>
+                    <Button onClick={(e) => handleClick(e)}>
+                      {buttonText}
+                    </Button>
+                  </Center>
+                </Box>
+              );
+            })}
+        </Container>
+      </Box>
     </>
   );
 }
