@@ -160,9 +160,18 @@ export default function Home({ cities }) {
     fetch("../api/favorites")
       .then((res) => res.json())
       .then((data) => {
-        setFetchedCities([data]);
+       console.log(data);
       });
   }, []);
+
+  useEffect(() => {
+    fetch("../api/rating")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data)
+        
+      });
+  },[]);
 
   const handleClick = (e) => {
     e.preventDefault();

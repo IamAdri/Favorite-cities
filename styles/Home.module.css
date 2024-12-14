@@ -107,6 +107,13 @@ a.secondary {
 .footer img {
   flex-shrink: 0;
 }
+.testimonialHide {
+  display: none;
+  
+}
+.testimonialShow {
+  display: block;
+}
 
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
