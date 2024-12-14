@@ -42,6 +42,9 @@ export default function MenuBar() {
         <MenuItem asChild value="favorites" css={menuItemStyles}>
           <Link href="/favorites">Favorites</Link>
         </MenuItem>
+        <MenuItem asChild value="reviews" css={menuItemStyles}>
+          <Link href="/reviews">Reviews</Link>
+        </MenuItem>
       </MenuContent>
     </MenuRoot>
   );

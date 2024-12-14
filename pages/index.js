@@ -19,7 +19,13 @@ export default function Home({ cities }) {
   const [randomCities, setRandomCities] = useState([]);
   const [fetchedRandomCity, setFetchedRandomCity] = useState([]);
   const [noFavoriteCitiesText, setNoFavoriteCitiesText] = useState("");
+  const [weatherItems, setWeatherIems] = useState([]);
+  const [fetchedCities, setFetchedCities] = useState([]);
+  const [buttonText, setButtonText] = useState("Add to favorites💜");
+  const [cityName, setCityName] = useState("");
+  const [countryName, setCountryName] = useState("");
   const { data: session } = useSession();
+
   const listStyle = {
     borderWidth: "1px",
     p: "10px",
@@ -35,7 +41,7 @@ export default function Home({ cities }) {
     backgroundRepeat: "no-repeat",
     width: "100vw",
     height: "100vh",
-    display: "flex",
+
     alignItems: "center",
     justifyContent: "center",
   };
@@ -87,6 +93,101 @@ export default function Home({ cities }) {
     }
   }, [randomCities]);
 
+  function successCallback(position) {
+    fetch(
+      `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${position.coords.longitude}&latitude=${position.coords.latitude}&access_token=pk.eyJ1IjoiYWRyaWFuYS1zcHJpbmNlYW4iLCJhIjoiY200OXc0dGpmMDFiOTJpc2U4OGE5OTVsdSJ9.MDVI_4ila-QC7Hsbj2BacA`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?name=${data.features[0].properties.context.place.name}&count=1&language=en&format=json`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            setCityName(data.results[0].name);
+            setCountryName(data.results[0].country);
+          });
+        fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            setWeatherIems([data]);
+          });
+      });
+  }
+
+  function errorCallback(error) {
+    fetch("https://ipinfo.io/json?token=333cb3549b21d1")
+      .then((response) => response.json())
+      .then((data) => {
+        fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?name=${data.city}&count=1&language=en&format=json`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            setCityName(data.results[0].name);
+            setCountryName(data.results[0].country);
+            fetch(
+              `https://api.open-meteo.com/v1/forecast?latitude=${data.results[0].latitude}&longitude=${data.results[0].longitude}&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`
+            )
+              .then((res) => res.json())
+              .then((data) => {
+                setWeatherIems([data]);
+              });
+          });
+      });
+  }
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+  }, []);
+
+  useEffect(() => {
+    fetchedCities.map((dbData) => {
+      dbData.map((dbCities) => {
+        if (
+          cityName === dbCities.cityName &&
+          countryName === dbCities.country
+        ) {
+          setButtonText("Remove from favorites");
+        }
+      });
+    });
+  }, [fetchedCities, cityName]);
+
+  useEffect(() => {
+    fetch("../api/favorites")
+      .then((res) => res.json())
+      .then((data) => {
+       console.log(data);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch("../api/rating")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data)
+        
+      });
+  },[]);
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    fetch("../api/favorites", {
+      method: "POST",
+      body: JSON.stringify({ cityName: cityName, country: countryName }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((res) => res.json());
+
+    buttonText === "Add to favorites💜"
+      ? setButtonText("Remove from favorites")
+      : setButtonText("Add to favorites💜");
+  };
+
   if (!session) {
     return (
       <Center>
@@ -110,6 +211,7 @@ export default function Home({ cities }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+
       <Flex
         bgColor="purple.50"
         justify="space-between"
@@ -186,6 +288,38 @@ export default function Home({ cities }) {
                 })}
             </Box>
           </Flex>
+          {weatherItems.length > 0 &&
+            weatherItems.map((city) => {
+              return (
+                <Box css={listStyle}>
+                  <Center>
+                    You are in {cityName} from {countryName}
+                  </Center>
+                  <br></br>
+                  <Center>
+                    <Text>
+                      Max temperature: {city.daily.temperature_2m_max}{" "}
+                      {city.daily_units.temperature_2m_max}
+                    </Text>
+                  </Center>
+                  <Center>
+                    <Text>
+                      Min temperature: {city.daily.temperature_2m_min}{" "}
+                      {city.daily_units.temperature_2m_max}
+                    </Text>
+                  </Center>
+                  <Center>
+                    <Text>Date: {city.daily.time}</Text>
+                  </Center>
+                  <br></br>
+                  <Center>
+                    <Button onClick={(e) => handleClick(e)}>
+                      {buttonText}
+                    </Button>
+                  </Center>
+                </Box>
+              );
+            })}
         </Container>
       </Box>
     </>

@@ -1,5 +1,6 @@
 import { AppDataSource } from "../../data-source";
-import { Favorite } from "@/entity/Favorites";
+
+import { Rating } from "@/entity/Rating";
 
 export default async function handler(req, res) {
   try {
@@ -7,30 +8,30 @@ export default async function handler(req, res) {
       await AppDataSource.initialize();
     }
     try {
-      const favoriteRepo = AppDataSource.getRepository(Favorite);
+      const ratingRepo = AppDataSource.getRepository(Rating);
 
       if (req.method === "POST") {
-        const { cityName, country } = req.body;
-
-        const existingFavorite = await favoriteRepo.findOneBy({
+        const { rating, review, cityName, country } = req.body;
+        const existingRating = await ratingRepo.findOneBy({
           cityName,
           country,
         });
 
-        if (existingFavorite) {
-          await favoriteRepo.remove(existingFavorite);
-          return res.status(200).json(existingFavorite);
+        if (existingRating) {
+          await ratingRepo.remove(existingRating);
+          return res.status(200).json(existingRating);
         } else {
-          const newFavorite = favoriteRepo.create({ cityName, country });
-          await favoriteRepo.save(newFavorite);
-          return res.status(200).json(newFavorite);
+          const newRating = ratingRepo.create({ rating, review, cityName, country });
+          await ratingRepo.save(newRating);
+          return res.status(200).json(newRating);
         }
-      }
+        }
+      
 
       if (req.method === "GET") {
-        const favorites = await favoriteRepo.find();
+        const ratings = await ratingRepo.find();
         console.log("Is getted")
-        return res.status(200).send(favorites);
+        return res.status(200).send(ratings);
       }
 
       res.setHeader("Allow", ["GET", "POST"]);
